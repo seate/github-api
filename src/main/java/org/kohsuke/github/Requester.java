@@ -27,6 +27,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import org.apache.commons.io.IOUtils;
 import org.kohsuke.github.connector.GitHubConnectorResponse;
 import org.kohsuke.github.function.InputStreamFunction;
+import org.kohsuke.github.graphql.response.GHGraphQLResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -100,6 +101,21 @@ class Requester extends GitHubRequest.Builder<Requester> {
     public <T> T fetchInto(@Nonnull T existingInstance) throws IOException {
         return client
                 .sendRequest(this, (connectorResponse) -> GitHubResponse.parseBody(connectorResponse, existingInstance))
+                .body();
+    }
+
+    /**
+     * Sends a request and parses the response into the given type via databinding in graphQL response.
+     * @param <T>
+     *       the type parameter
+     * @param type
+     *           the type
+     * @return an instance of {@code GHGraphQLResponse<T>}
+     * @throws IOException
+     *          if the server returns 4xx/5xx responses.
+     */
+    public <T> GHGraphQLResponse<T> fetchGraphQLResponse(@Nonnull Class<T> type) throws IOException {
+        return client.sendRequest(this, connectorResponse -> GitHubResponse.parseGraphQLBody(connectorResponse, type))
                 .body();
     }
 
