@@ -1036,6 +1036,30 @@ public class GHPullRequestTest extends AbstractGitHubWireMockTest {
         pullRequestFromSearchResults.close();
     }
 
+    @Test
+    public void enablePullRequestAutoMerge() throws IOException {
+        String authorEmail = "sa20207@naver.com";
+        String clientMutationId = "github-api";
+        String commitBody = "This is commit body.";
+        String commitTitle = "This is commit title.";
+        String expectedCommitHeadOid = "4888b44d7204dd05680e90159af839c8b1194b6d";
+
+        GHPullRequest pullRequest = gitHub.getRepository("seate/for-test").getPullRequest(9);
+
+        pullRequest.requestEnableAutoMerge(authorEmail,
+                clientMutationId,
+                commitBody,
+                commitTitle,
+                expectedCommitHeadOid,
+                GHPullRequest.MergeMethod.MERGE);
+
+        AutoMerge autoMerge = pullRequest.getAutoMerge();
+        assertThat(autoMerge.getEnabledBy().getEmail(), is(authorEmail));
+        assertThat(autoMerge.getCommitMessage(), is(commitBody));
+        assertThat(autoMerge.getCommitTitle(), is(commitTitle));
+        assertThat(autoMerge.getMergeMethod(), is(GHPullRequest.MergeMethod.MERGE));
+    }
+
     /**
      * Gets the repository.
      *
